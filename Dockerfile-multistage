@@ -1,0 +1,19 @@
+# Stage 1 Slim image with linus distribution 
+
+FROM python:3.14-slim AS builder
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt --target=/app/deps
+
+
+# Stage 2 Here we have just the code and code the dependecies without linux distribution
+
+FROM gcr.io/distroless/python3-debian12
+WORKDIR /app
+COPY --from=builder /app/deps /app/deps
+COPY --from=builder /app .
+
+ENV PYTHONPATH="/app/deps"
+EXPOSE 80
+CMD ["run.py"]
+
